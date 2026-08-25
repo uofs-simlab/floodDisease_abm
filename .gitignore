@@ -23,6 +23,9 @@ cache/
 analysis/graph_generation/_demo_output/
 texput.log
 
+# Generated spatial map previews
+space/Uvalde_TX_map_data/*.html
+
 # Large local input archives; processed map resources remain publishable
 *.tar.gz
 space/Uvalde_TX_map_data/raw/twdb_cursory/*.zip
