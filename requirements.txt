@@ -1,0 +1,23 @@
+mesa==3.2.0
+mesa-geo==0.9.3
+numpy==2.5.1
+shapely==2.1.2
+scipy==1.18.0
+matplotlib==3.11.0
+seaborn==0.13.2
+pandas==3.0.3
+geopandas==1.1.4
+pyogrio==0.13.0
+fiona==1.10.1
+osmnx==2.1.0
+psutil==7.2.2
+solara==1.60.3
+fastapi==0.139.2
+uvicorn==0.51.0
+starlette==0.52.1
+ipywidgets==8.1.8
+# ipyleaflet 0.20 breaks the current Mesa-Geo Solara widget path.
+ipyleaflet==0.19.2
+jupyter-leaflet==0.19.2
+paramiko==5.0.0
+

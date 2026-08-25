@@ -1,0 +1,20 @@
+{
+  "figures": {
+    "compound_finance": {
+      "filename": "figure_12_compound_finance",
+      "title": "Financial effects of the compound hazard scenario",
+      "xlabel": "Simulation day",
+      "ylabel": "Currency units",
+      "series": [
+        ["biz_wealth_total", "Business"],
+        ["gov_wealth", "Government"],
+        ["hc_wealth", "Healthcare"],
+        ["person_wealth_total_scaled", "Person"]
+      ]
+    },
+    "flood_population_stability": {
+      "filename": "figure_04_flood_population_stability",
+      "title": "Population stability following flooding"
+    }
+  }
+}
