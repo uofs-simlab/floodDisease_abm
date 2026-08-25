@@ -1,5 +1,4 @@
-in processed spatial data. From the project root, start it with:
-# Flood-Disease ABM
+# Flood-Disease ABM: A multi-pathway flood-disease agent-based model for simulating health impacts across the disaster lifecycle
 
 An agent-based model of how flooding, infectious disease, mold, vectorborne
 disease, households, public services, and the local economy interact across a
