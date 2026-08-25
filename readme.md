@@ -7,8 +7,8 @@ Mesa, Mesa-Geo, and Solara.
 
 ## Quick Start
 
-The steps below are the supported Windows workflow. Run them from the project
-root in PowerShell.
+Install the dependencies, then follow the instructions for your platform.
+Run the commands from the project root.
 
 ### 1. Install
 
@@ -21,7 +21,22 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-### 2. Start the interactive app
+### Linux or macOS
+
+Create and activate the environment, install the pinned dependencies, and start
+the interactive app:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m solara run run/serverrun.py
+```
+
+The convenience script `scripts/setup_lab_env.sh` performs the environment
+setup on Linux or macOS. The PowerShell start/stop helpers are Windows-only.
+
+### 2. Start the interactive app on Windows
 
 ```powershell
 .\start_serverrun.ps1
@@ -94,20 +109,6 @@ Run any scenario directly:
 Common runner options include `--persons`, `--replications`, `--workers`,
 `--seed-base`, `--out-dir`, and `--keep-rep-folders`. All runs currently use
 Uvalde; `--map uvalde` is accepted only for compatibility.
-
-## Linux or macOS
-
-Create and activate the environment, then use the same Python entry points:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m solara run run/serverrun.py
-```
-
-The convenience script `scripts/setup_lab_env.sh` performs the environment
-setup on Linux or macOS. The PowerShell start/stop helpers are Windows-only.
 
 ## Results and Analysis
 
