@@ -97,7 +97,7 @@ def _plot_lines(df: pd.DataFrame, series: list[tuple[str, str]], title: str, yla
         q75_col = f"{base}_q75"
         if q25_col in df.columns and q75_col in df.columns:
             ax.fill_between(x, df[q25_col], df[q75_col], alpha=0.12)
-        stability_colors = {"Dead": "black", "Unalive": "black", "Evacuated": "green", "Stranded": "red", "In Shelter": "blue", "In Healthcare": "orange"}
+        stability_colors = {"Deaths": "black", "Evacuated": "green", "Stranded": "red", "In Shelter": "blue", "In Healthcare": "orange"}
         h, = ax.plot(x, y, linewidth=2, label=label, color=stability_colors.get(label))
         handles.append(h)
         labels.append(label)
@@ -466,13 +466,13 @@ def generate_baseline_graphs(run_dir: Path, scenario: str = "baseline", out_subd
 
     if scenario_key == "infectious_disease":
         population_series = [
-            ("dead_pct", "Dead"),
+            ("dead_pct", "Deaths"),
             ("inf_prev_pct", "Active Infections"),
             ("in_healthcare_pct", "In Healthcare"),
         ]
     elif scenario_key == "compound":
         population_series = [
-            ("dead_pct", "Dead"),
+            ("dead_pct", "Deaths"),
             ("evacuated_pct", "Evacuated"),
             ("stranded_pct", "Stranded"),
             ("in_shelter_pct", "In Shelter"),
@@ -481,7 +481,7 @@ def generate_baseline_graphs(run_dir: Path, scenario: str = "baseline", out_subd
         ]
     else:
         population_series = [
-            ("dead_pct", "Dead"),
+            ("dead_pct", "Deaths"),
             ("evacuated_pct", "Evacuated"),
             ("stranded_pct", "Stranded"),
             ("in_shelter_pct", "In Shelter"),
@@ -546,7 +546,7 @@ def generate_baseline_graphs(run_dir: Path, scenario: str = "baseline", out_subd
         ("affected_sheltered_unique_pct", "Sheltered", "final"),
         ("affected_healthcare_unique_pct", "Healthcare (ever)", "final"),
         ("affected_injured_unique_pct", "Injured", "final"),
-        ("dead_pct", "Dead", "final"),
+        ("dead_pct", "Deaths", "final"),
         ("affected_mold_pct", "Affected by Mold", "final"),
         ("affected_vectorborne_pct", "Affected by Vectorborne", "final"),
         ("affected_infectious_pct", "Affected by Infectious", "final"),
@@ -554,12 +554,12 @@ def generate_baseline_graphs(run_dir: Path, scenario: str = "baseline", out_subd
     if scenario_key == "infectious_disease":
         affected_specs = [
             ("in_healthcare_pct", "In Healthcare", "peak"),
-            ("dead_pct", "Dead", "final"),
+            ("dead_pct", "Deaths", "final"),
             ("inf_prev_pct", "Active Infectious", "peak"),
         ]
     elif scenario_key == "baseline":
         affected_specs = [
-            ("dead_pct", "Dead", "final"),
+            ("dead_pct", "Deaths", "final"),
         ]
     _plot_endstate_bars(
         df_all,

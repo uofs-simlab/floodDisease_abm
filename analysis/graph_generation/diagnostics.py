@@ -143,7 +143,7 @@ def fig_state_accounting(quant: Dict[str, pd.DataFrame], out_dir: Path) -> None:
     fig, axes = plt.subplots(2, 2, figsize=(14, 9), sharex=True)
     metrics = [
         ("alive_pct", "Alive (%)"),
-        ("dead_pct", "Dead (%)"),
+        ("dead_pct", "Deaths (%)"),
         ("evacuated_pct", "Evacuated (%)"),
         ("stranded_pct", "Stranded (%)"),
     ]

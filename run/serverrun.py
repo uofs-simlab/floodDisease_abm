@@ -182,6 +182,7 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="seaborn")
 
 def _format_metric_label(raw: str) -> str:
     metric_aliases = {
+        "dead_pct": "Deaths",
         "work_attendance_workhours_pct": "Work",
         "school_attendance_scheduled_pct": "School",
         "leisure_attendance_pct": "Leisure",

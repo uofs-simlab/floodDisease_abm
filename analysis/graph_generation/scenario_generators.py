@@ -223,7 +223,7 @@ def generate_flood_scenario_graphs(run_dir: Path, scenario: str, out_subdir: str
     _plot_lines(
         df_q,
         [
-            ("dead_pct", "Unalive"),
+            ("dead_pct", "Deaths"),
             ("evacuated_pct", "Evacuated"),
             ("stranded_pct", "Stranded"),
             ("in_shelter_pct", "In Shelter"),
@@ -310,7 +310,7 @@ def generate_flood_scenario_graphs(run_dir: Path, scenario: str, out_subdir: str
         ("affected_sheltered_unique_pct", "Sheltered", "final"),
         ("affected_healthcare_unique_pct", "Healthcare (ever)", "final"),
         ("affected_injured_unique_pct", "Injured", "final"),
-        ("dead_pct", "Dead", "final"),
+        ("dead_pct", "Deaths", "final"),
     ]
     if scenario_key in {"flood_mold", "flood_mold_vectorborne", "full_compound"}:
         affected_metric_specs.extend([

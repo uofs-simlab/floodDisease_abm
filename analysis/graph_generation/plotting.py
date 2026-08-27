@@ -120,7 +120,7 @@ def _plot_lines(df: pd.DataFrame, series: list[tuple[str, str]], title: str, yla
     for base, label in series:
         column = _pick(df, base)
         y = df[column] if column else np.zeros(len(x))
-        stability_colors = {"Dead": "black", "Unalive": "black", "Evacuated": "green", "Stranded": "red", "In Shelter": "blue", "In Healthcare": "orange"}
+        stability_colors = {"Deaths": "black", "Evacuated": "green", "Stranded": "red", "In Shelter": "blue", "In Healthcare": "orange"}
         h, = ax.plot(x, y, linewidth=2, label=label, color=stability_colors.get(label))
         handles.append(h)
         q25, q75 = f"{base}_q25", f"{base}_q75"
