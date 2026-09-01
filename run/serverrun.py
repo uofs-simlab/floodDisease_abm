@@ -258,6 +258,25 @@ def _format_metric_label(raw: str) -> str:
     return " ".join(words)
 
 
+def _simulation_day_phase(model, hours=None) -> tuple[int, str]:
+    """Return the one-based simulation day and configured timeline phase."""
+    hours = max(0, int(getattr(model, "hours", 0) if hours is None else hours or 0))
+    baseline_hours = max(0, int(getattr(model, "baseline_days", 0) or 0)) * 24
+    pre_flood_hours = max(0, int(getattr(model, "pre_flood_days", 0) or 0)) * 24
+    flood_hours = max(0, int(getattr(model, "flood_days", 0) or 0)) * 24
+    day = min(int(getattr(model, "total_days", 0) or 0) or 1, hours // 24 + 1)
+
+    if hours < baseline_hours:
+        phase = "Baseline"
+    elif hours < baseline_hours + pre_flood_hours:
+        phase = "Pre-flood"
+    elif hours < baseline_hours + pre_flood_hours + flood_hours:
+        phase = "Flood"
+    else:
+        phase = "Post-flood"
+    return day, phase
+
+
 def make_plot_component(measure, post_process=None, backend="matplotlib", y_label=None, **plot_drawing_kwargs):
     keys = []
     if isinstance(measure, str):
@@ -1677,12 +1696,34 @@ def BigGeoSpace(model, render_token: int = 0):
 
 @solara.component
 def DashboardLayout(model):
+    clock_hours, set_clock_hours = solara.use_state(int(getattr(model, "hours", 0) or 0))
+
+    def refresh_clock():
+        while bool(getattr(model, "running", False)):
+            current_hours = int(getattr(model, "hours", 0) or 0)
+            set_clock_hours(current_hours)
+            time.sleep(0.25)
+        set_clock_hours(int(getattr(model, "hours", 0) or 0))
+
+    solara.use_thread(refresh_clock, dependencies=[model])
     with solara.Column(gap="12px", style={"padding": "12px", "width": "200%",  "maxWidth": "85vw", "margin": "0 auto"}):
         with solara.Card(title="Flood–Disease simulation dashboard", margin=0, style={"background": "rgba(255,255,255,0.96)"}):
             pass
         with solara.Columns([3, 1], wrap=True, style={"alignItems": "stretch"}):
             with solara.Column(gap="12px"):
-                with solara.Card(title="Simulation map", margin=0, style={"background": "rgba(255,255,255,0.98)"}):
+                with solara.Card(margin=0, style={"background": "rgba(255,255,255,0.98)"}):
+                    day, phase = _simulation_day_phase(model, clock_hours)
+                    with solara.Row(style={
+                        "alignItems": "center",
+                        "display": "flex",
+                        "justifyContent": "space-between",
+                        "width": "100%",
+                    }):
+                        solara.Text("Simulation map", style={"fontSize": "1.25rem", "fontWeight": "500"})
+                        solara.Text(
+                            f"Day {day} - {phase}",
+                            style={"fontSize": "1.05rem", "fontWeight": "500", "textAlign": "right"},
+                        )
                     BigGeoSpace(model, render_token=int(getattr(model, "hours", 0) or 0))
             with solara.Column(gap="12px"):
                 ColorLegend(model)
