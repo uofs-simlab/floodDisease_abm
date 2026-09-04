@@ -18,7 +18,8 @@ solara_server.log
 .solara_server.port
 
 # Generated analysis and simulation output
-outputs/
+outputs/*
+!outputs/.gitkeep
 cache/
 analysis/graph_generation/_demo_output/
 texput.log
