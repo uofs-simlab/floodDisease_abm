@@ -40,7 +40,7 @@ FIGURES: dict[str, dict[str, Any]] = {
     "baseline_psychology": {"scenario": "baseline", "kind": "lines", "series": SERIES["psychology"], "statistic": "mean", "filename": "04_baseline_psychology", "title": "Decision Psychology - Baseline Scenario", "xlabel": "Day", "ylabel": "Index"},
     "compound_psychology": {"scenario": "full_compound", "kind": "lines", "series": SERIES["psychology"], "statistic": "mean", "filename": "05_compound_psychology", "title": "Decision Psychology - Compound Scenario", "xlabel": "Day", "ylabel": "Index"},
     "flood_population_stability": {"scenario": "flood_only", "kind": "lines", "series": SERIES["population_stability"], "filename": "06_flood_population_stability", "title": "Population Stability - Flood Only Scenario", "xlabel": "Day", "ylabel": "Percentage of population"},
-    "flood_mold_vectorborne_population_stability": {"scenario": "flood_mold_vectorborne", "kind": "lines", "series": SERIES["population_stability"], "filename": "07_flood_mold_vectorborne_population_stability", "title": "Population Stability - Flood, Mold, and Vectorborne Scenario", "xlabel": "Day", "ylabel": "Percentage of population"},
+    "flood_mold_population_stability": {"scenario": "flood_mold", "source": "flood_mold/flood_mold_5000x30", "kind": "lines", "series": SERIES["population_stability"], "filename": "07_flood_mold_population_stability", "title": "Population Stability - Flood and Mold Scenario", "xlabel": "Day", "ylabel": "Percentage of population"},
     "infectious_population_stability": {"scenario": "infectious_disease", "kind": "lines", "series": [("dead_pct", "Deaths"), ("inf_prev_pct", "Active infections"), ("in_healthcare_pct", "In Healthcare")], "filename": "08_infectious_population_stability", "title": "Population Stability - Infectious Disease Scenario", "xlabel": "Day", "ylabel": "Percentage of population"},
     "compound_population_stability": {"scenario": "full_compound", "kind": "lines", "series": SERIES["population_stability"], "filename": "09_compound_population_stability", "title": "Population Stability - Compound Scenario", "xlabel": "Day", "ylabel": "Percentage of population"},
     "compound_structural_impact": {"scenario": "full_compound", "kind": "structural", "filename": "10_compound_structural_impact", "title": "Structural Impact - Compound Scenario", "xlabel": "Day", "ylabel": "Percentage of entities"},
@@ -279,8 +279,10 @@ def _find_scenario_dir(root: Path, scenario: str) -> Path:
     raise FileNotFoundError(f"Could not find exported timeseries for scenario '{scenario}' below {root}")
 
 
-def _load_scenario(root: Path, scenario: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    folder = _find_scenario_dir(root, scenario)
+def _load_scenario(root: Path, scenario: str, source: str | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+    folder = (root / source).resolve() if source else _find_scenario_dir(root, scenario)
+    if not folder.is_dir() or not ((folder / "timeseries_quantiles.csv").exists() or (folder / "timeseries_all_replications.csv").exists()):
+        raise FileNotFoundError(f"Could not find exported timeseries for source '{source or scenario}' below {root}")
     all_path = folder / "timeseries_all_replications.csv"
     quant_path = folder / "timeseries_quantiles.csv"
     df_all = pd.read_csv(all_path) if all_path.exists() else pd.DataFrame()
@@ -309,9 +311,10 @@ def generate(run_dir: Path, output_dir: Path, selected: list[str], config: dict[
             raise KeyError(f"Unknown figure '{key}'. Use --list-figures to see available names.")
         spec = specs[key]
         scenario = spec["scenario"]
-        if scenario not in data:
-            data[scenario] = _load_scenario(run_dir, scenario)
-        df_all, df_q = data[scenario]
+        data_key = spec.get("source", scenario)
+        if data_key not in data:
+            data[data_key] = _load_scenario(run_dir, scenario, spec.get("source"))
+        df_all, df_q = data[data_key]
         out = output_dir / f"{spec['filename']}.{image_format}"
         kind = spec["kind"]
         if kind == "lines":

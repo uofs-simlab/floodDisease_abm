@@ -6,7 +6,7 @@ from copy import deepcopy
 
 # These are the interactive Serverrun defaults and are shared by batchrun.
 RUN_DEFAULTS = {
-    "N_persons": 20,
+    "N_persons": 100,
     "baseline_days": 7,
     "pre_flood_days": 3,
     "flood_days": 7,
