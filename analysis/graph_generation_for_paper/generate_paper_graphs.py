@@ -213,8 +213,9 @@ def _plot_routine(df: pd.DataFrame, spec: dict[str, Any], out: Path) -> bool:
         plt.close(fig)
         return False
     ax.set(title=spec["title"], xlabel=spec["xlabel"], ylabel=spec["ylabel"])
+    ax.set_ylim(-5, 105)
     ax.set_xticks(range(0, 24, 2))
-    ax.legend()
+    ax.legend(loc="upper left")
     fig.tight_layout()
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
