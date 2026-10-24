@@ -79,15 +79,14 @@ class InfectiousModule(DiseaseModuleBase):
                  contact_intensity=1.0,
                  gamma=1/60,
                  waning=0.0,
-                 seed_share=0.01):
+                 seed_share=0.01,
+                 max_inf_hours=24 * 14):
         self.beta_base = beta_base
         self.contact_intensity = contact_intensity
         self.gamma = gamma
         self.waning = waning
         self.seed_share = seed_share
-        self.max_inf_hours = 24 * 14
-        self.course_hours = 24 * 7
-        self.peak_hours = 24 * 3
+        self.max_inf_hours = max(1, int(max_inf_hours))
         self.incidence = 0
         self._seeded = False
 
@@ -109,6 +108,7 @@ class InfectiousModule(DiseaseModuleBase):
         p.medical_needs_hospitalization = False
 
     def _severity_for_hour(self, model, p) -> float:
+        # Severity follows its configured curve; infection recovery is controlled separately by gamma.
         course_hours = max(48, int(model.infectious_course_hours))
         peak_hours = max(12, min(course_hours - 1, int(model.infectious_peak_hours)))
         inf_hours = max(0, int(p.inf_hours or 0))
@@ -138,7 +138,10 @@ class InfectiousModule(DiseaseModuleBase):
         if not people:
             return
 
-        n_seed = min(len(people), max(1, int(round(len(people) * self.seed_share))))
+        n_seed = 0 if self.seed_share <= 0.0 else min(
+            len(people),
+            max(1, int(round(len(people) * self.seed_share))),
+        )
         for p in random.sample(people, n_seed):
             if not hasattr(p, "inf_state") or getattr(p, "inf_state", "S") == "S":
                 p.inf_state, p.inf_hours = "I", 0
@@ -286,11 +289,10 @@ class VectorborneModule(DiseaseModuleBase):
     Symptoms triggered by proximity to stagnant pools that decay over time.
     """
     name = "vectorborne"
-    def __init__(self, base_prob=0.003, shelter_protect=0.65, recover_rate=1/168):
-        self.base_prob = base_prob
+    def __init__(self, shelter_protect=0.65, recover_rate=1/168, max_symp_hours=24 * 14):
         self.shelter_protect = shelter_protect
         self.recover_rate = recover_rate
-        self.max_symp_hours = 24 * 14
+        self.max_symp_hours = max(1, int(max_symp_hours))
         self.incidence = 0
 
     def step(self, model):
@@ -346,12 +348,19 @@ class MoldModule(DiseaseModuleBase):
     Respiratory symptoms tied to damp/moldy homes; affects return behavior.
     """
     name = "mold"
-    def __init__(self, base_prob=0.003, sens_high_share=0.20, sens_mult=2.4, recover_rate=1/84):
+    def __init__(
+        self,
+        base_prob=0.003,
+        sens_high_share=0.20,
+        sens_mult=2.4,
+        recover_rate=1/84,
+        max_symp_hours=24 * 14,
+    ):
         self.base_prob = base_prob
         self.sens_high_share = sens_high_share
         self.sens_mult = sens_mult
         self.recover_rate = recover_rate
-        self.max_symp_hours = 24 * 14
+        self.max_symp_hours = max(1, int(max_symp_hours))
         self.incidence = 0
 
     def step(self, model):

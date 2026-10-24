@@ -671,7 +671,6 @@ def data_collection(model):
             "infectious_enabled": lambda m: int(bool(m.enable_infectious)),
             "vectorborne_enabled": lambda m: int(bool(m.enable_vectorborne)),
             "mold_enabled": lambda m: int(bool(m.enable_mold)),
-            "policy_wash": lambda m: float(m.wash_intensity),
             "policy_distancing": lambda m: float(m.shelter_distancing_intensity),
             "policy_hc_surge": lambda m: float(m.healthcare_surge_factor),
             "policy_repair": lambda m: float(m.repair_subsidy_intensity),

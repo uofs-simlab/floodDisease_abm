@@ -485,6 +485,7 @@ def launch_remote_batch(
         "flood_mold": "scripts/run_lab_flood_mold.sh",
         "flood_mold_vectorborne": "scripts/run_lab_flood_mold_vectorborne.sh",
         "full_compound": "scripts/run_lab_full_compound.sh",
+        "sensitivity_analysis": "scripts/run_lab_sensitivity_analysis.sh",
     }
     run_script = _runner_script_map.get(runner)
     if run_script is None:

@@ -41,13 +41,11 @@ SERVICE_DEFAULTS = {
     "healthcare_funding": 100_000,
 }
 
-# Deterministic model defaults shared by Serverrun and batch runs. Batch
-# uncertainty ranges remain in run/support/common.py.
+# Deterministic model defaults shared by Serverrun and batch runs. Parameter
+# uncertainty is specified explicitly by sensitivity-analysis callers.
 FLOOD_DEFAULTS = {
     "flood_critical_facility_clearance_m": 25.0,
     "flood_depth_multiplier": 2.5,
-    "flood_onset_speed": 1.0,
-    "flood_recession_speed": 1.0,
     "house_flood_thresh_mult": 0.90,
     "biz_flood_thresh_mult": 0.90,
     "school_flood_thresh_mult": 0.90,
@@ -64,6 +62,8 @@ FLOOD_DEFAULTS = {
     "flood_wave_fall_hours": 0.0,
 }
 
+# The infectious course and peak values shape severity, while gamma controls
+# stochastic recovery from the infectious state.
 INFECTIOUS_DEFAULTS = {
     "infectious_seed_share": 0.01,
     "infectious_beta_base": 0.008,
@@ -73,7 +73,8 @@ INFECTIOUS_DEFAULTS = {
     "infectious_severity_scale": 1.20,
     "infectious_mortality_hazard": 0.03,
     "infectious_course_hours": 50,
-    "infectious_peak_hours": 55,
+    "infectious_peak_hours": 49,
+    "infectious_max_duration_hours": 336,
     "injury_hospital_recovery_boost": 3.0,
     "infectious_threat_coupling": 0.0,
     "infectious_seed_start_hour": 200,
@@ -87,6 +88,11 @@ MOLD_DEFAULTS = {
     "school_repair_cost_multiplier": 0.5,
     "school_mold_attendance_penalty_rate": 0.15,
     "mold_symptom_threshold": 0.15,
+    "mold_base_onset_probability": 0.003,
+    "mold_high_sensitivity_share": 0.20,
+    "mold_sensitivity_multiplier": 2.4,
+    "mold_recovery_rate_per_hour": 1 / 84,
+    "mold_max_symptom_hours": 336,
     "mold_functional_capacity": 0.70,
     "mold_hospital_seek_prob": 0.01,
     "mold_healthcare_cost_multiplier": 0.252,
@@ -104,6 +110,9 @@ VECTORBORNE_DEFAULTS = {
     "stagnant_keep_fraction": 0.60,
     "vector_hospital_seek_prob": 0.02,
     "vector_exposure_hazard": 0.05,
+    "vector_shelter_protection": 0.65,
+    "vector_recovery_rate_per_hour": 1 / 168,
+    "vector_max_symptom_hours": 336,
     "vector_functional_capacity": 0.75,
     "healthcare_max_stay_hours": 100,
     "vector_healthcare_cost_multiplier": 0.351,
@@ -238,7 +247,6 @@ FLOOD_GEOMETRY_DEFAULTS = {
 }
 
 POLICY_DEFAULTS = {
-    "wash_intensity": 0.0,
     "shelter_distancing_intensity": 0.0,
     "healthcare_surge_factor": 0.0,
     "repair_subsidy_intensity": 0.0,

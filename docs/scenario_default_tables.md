@@ -60,8 +60,6 @@ agent counts.
 | --- | ---: | --- |
 | `flood_critical_facility_clearance_m` | 25.0 m | Clearance used when selecting critical facilities. |
 | `flood_depth_multiplier` | 2.5 | Multiplier applied to source flood depth. |
-| `flood_onset_speed` | 1.0 | Flood rise speed multiplier. |
-| `flood_recession_speed` | 1.0 | Flood fall speed multiplier. |
 | `house_flood_thresh_mult` | 0.90 | House flood threshold multiplier. |
 | `biz_flood_thresh_mult` | 0.90 | Business flood threshold multiplier. |
 | `school_flood_thresh_mult` | 0.90 | School flood threshold multiplier. |
@@ -88,11 +86,19 @@ agent counts.
 | `infectious_contact_intensity` | 0.02 | Contact/transmission intensity. |
 | `infectious_severity_scale` | 1.20 | Disease severity multiplier. |
 | `infectious_mortality_hazard` | 0.03 | Hourly mortality hazard before modifiers. |
-| `infectious_course_hours` | 50 | Disease-course duration control. |
-| `infectious_peak_hours` | 55 | Peak infectiousness timing control. |
+| `infectious_course_hours` | 50 | Duration of the modeled severity curve; recovery from infection is separately controlled by `infectious_gamma`. |
+| `infectious_peak_hours` | 49 | Peak of the severity curve, in hours. This is the effective value previously produced by clipping 55 to `infectious_course_hours - 1`. |
+| `infectious_max_duration_hours` | 336 | Maximum time in the infectious state before recovery. |
 | `injury_hospital_recovery_boost` | 3.0 | Recovery boost for injured hospitalized people. |
 | `infectious_threat_coupling` | 0.0 | Coupling from infectious threat to behavior. |
 | `infectious_seed_start_hour` | 200 | Infection-only seed start before scenario derivation. |
+
+`infectious_course_hours` and `infectious_peak_hours` shape the severity curve;
+they do not set the time an agent remains infected. `infectious_gamma` controls
+hourly stochastic recovery, with `infectious_max_duration_hours` as a hard cap.
+Within an hour, disease updates retain the existing sequential person-list
+order; changing to synchronous transmission would change the reported
+trajectories.
 
 ## Mold, Vectorborne, and Economic Defaults
 
@@ -105,6 +111,11 @@ agent counts.
 | Mold | `school_repair_cost_multiplier` | 0.5 | School mold repair-cost multiplier. |
 | Mold | `school_mold_attendance_penalty_rate` | 0.15 | School attendance penalty rate. |
 | Mold | `mold_symptom_threshold` | 0.15 | Dampness level for symptoms. |
+| Mold | `mold_base_onset_probability` | 0.003 | Hourly base probability of symptom onset when exposure conditions are met. |
+| Mold | `mold_high_sensitivity_share` | 0.20 | Share assigned to the high-sensitivity group. |
+| Mold | `mold_sensitivity_multiplier` | 2.4 | Onset-probability multiplier for high-sensitivity agents. |
+| Mold | `mold_recovery_rate_per_hour` | 0.0119 | Hourly symptom-recovery probability before policy modifiers. |
+| Mold | `mold_max_symptom_hours` | 336 | Maximum duration of a mold-symptom episode. |
 | Mold | `mold_functional_capacity` | 0.70 | Functional capacity during mold effects. |
 | Mold | `mold_hospital_seek_prob` | 0.01 | Probability of seeking care. |
 | Mold | `mold_healthcare_cost_multiplier` | 0.252 | Mold-care cost multiplier. |
@@ -119,6 +130,9 @@ agent counts.
 | Vectorborne | `stagnant_keep_fraction` | 0.60 | Fraction of stagnant pools retained. |
 | Vectorborne | `vector_hospital_seek_prob` | 0.02 | Probability of seeking vectorborne care. |
 | Vectorborne | `vector_exposure_hazard` | 0.05 | Exposure-to-infection hazard. |
+| Vectorborne | `vector_shelter_protection` | 0.65 | Proportional reduction in exposure hazard while sheltered. |
+| Vectorborne | `vector_recovery_rate_per_hour` | 0.0060 | Hourly symptom-recovery probability before control modifiers. |
+| Vectorborne | `vector_max_symptom_hours` | 336 | Maximum duration of a vectorborne-symptom episode. |
 | Vectorborne | `vector_functional_capacity` | 0.75 | Functional capacity during vector illness. |
 | Vectorborne | `healthcare_max_stay_hours` | 100 | Maximum vector-care stay control. |
 | Vectorborne | `vector_healthcare_cost_multiplier` | 0.351 | Vector-care cost multiplier. |
@@ -236,7 +250,6 @@ agent counts.
 | Geometry | `flood_max_visual_polygons` | 20 | Maximum visual flood polygons. |
 | Geometry | `flood_depth_default_m` | 0.60 m | Fallback flood depth. |
 | Geometry | `flood_depth_variation_m` | 0.15 m | Flood-depth variation. |
-| Policy | `wash_intensity` | 0.0 | Wash intervention intensity. |
 | Policy | `shelter_distancing_intensity` | 0.0 | Shelter distancing intervention. |
 | Policy | `healthcare_surge_factor` | 0.0 | Healthcare surge intervention. |
 | Policy | `repair_subsidy_intensity` | 0.0 | Repair subsidy intervention. |

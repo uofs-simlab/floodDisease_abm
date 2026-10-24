@@ -20,7 +20,32 @@ python run\flood_vectorborne.py --persons 300 --replications 10
 python run\flood_infectious.py --persons 300 --replications 10
 python run\flood_mold_vectorborne.py --persons 300 --replications 10
 python run\full_compound.py --persons 300 --replications 10
+python run\sensitivity_analysis.py --plan-only --method both
+python run\sensitivity_analysis.py --method both --persons 5000 --gottlieb
 ```
+
+The sensitivity runner is compound-scenario only. It generates a Morris
+screening design and, with `--method both`, follows it with an LHS/PRCC analysis
+of the highest-ranked parameters. Use `--plan-only` to inspect a design without
+running the model. The default design is computationally substantial; reduce
+`--morris-trajectories`, `--lhs-samples`, or
+`--replications-per-point` for a pilot. Parameter bounds in the runner are
+provisional stress-test ranges; review and justify them before interpreting the
+results. Remote execution uses the lab's SSH-key workflow. The SSH key must be
+available through `ssh-agent` and authorized on both the Tux gateway and target
+host. Specify non-default accounts with `--tux-user` and `--remote-user` (or
+`FLOODDISEASE_ABM_TUX_USER` and `FLOODDISEASE_ABM_REMOTE_USER`); specify a
+non-default key with `--remote-ssh-key` or `FLOODDISEASE_ABM_SSH_KEY`. If
+public-key authentication is unavailable, OpenSSH can interactively prompt for
+the Tux and target account passwords; do not put passwords in command-line
+arguments or saved configuration.
+Use `--parameters extended` to add the currently parameterized mold/vector
+assumptions, selected behavioral weights, seeding delay, and economic
+multiplier; `--parameters` also accepts a comma-separated custom list.
+
+Sensitivity outputs include the sampled designs, per-seed `run_results.csv`,
+Morris elementary-effect indices, LHS/PRCC indices, and
+`within_point_variability.csv` for run-to-run variability at each design point.
 
 The current model uses the single checked-in Uvalde study area. The runners
 accept `--map uvalde` for compatibility, but there are no alternate maps.

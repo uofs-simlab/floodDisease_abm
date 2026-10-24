@@ -9,7 +9,7 @@ param(
     [string]$SessionName = "flood_batch",
     [string]$SshKey = (Join-Path $env:USERPROFILE ".ssh\id_ed25519_usask_hpc"),
     [string]$BatchArgs = "--persons 300 --replications 30 --workers 0 --out-dir outputs/scenario_runs_hpc --seed-base 42",
-    [ValidateSet("compare", "baseline", "infectious_disease", "flood_only", "flood_mold", "flood_vectorborne", "flood_mold_vectorborne", "flood_infectious", "full_compound")]
+    [ValidateSet("compare", "baseline", "infectious_disease", "flood_only", "flood_mold", "flood_vectorborne", "flood_mold_vectorborne", "flood_infectious", "full_compound", "sensitivity_analysis")]
     [string]$Runner = "compare",
     [switch]$KillExistingSession
 )
@@ -39,8 +39,7 @@ if ([string]::IsNullOrWhiteSpace($RemoteRepo)) {
 }
 
 $proxyJump = "${TuxUser}@${TuxHost}"
-$proxyCommand = "ssh -i `"$SshKey`" -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=20 -W %h:%p $proxyJump"
-$sshOptions = @("-i", $SshKey, "-o", "IdentitiesOnly=yes", "-o", "BatchMode=yes", "-o", "ConnectTimeout=20")
+$sshOptions = @("-i", $SshKey, "-o", "IdentitiesOnly=yes", "-o", "ConnectTimeout=20")
 $runScript = if ($Runner -eq "baseline") {
     "scripts/run_lab_baseline.sh"
 } elseif ($Runner -eq "infectious_disease") {
@@ -57,6 +56,8 @@ $runScript = if ($Runner -eq "baseline") {
     "scripts/run_lab_flood_mold_vectorborne.sh"
 } elseif ($Runner -eq "full_compound") {
     "scripts/run_lab_full_compound.sh"
+} elseif ($Runner -eq "sensitivity_analysis") {
+    "scripts/run_lab_sensitivity_analysis.sh"
 } else {
     "scripts/run_lab_batch.sh"
 }
@@ -83,6 +84,7 @@ if ($KillExistingSession) {
     $remoteScript += "`ntmux kill-session -t `"$SessionName`" 2>/dev/null || true`n"
 }
 
+$remoteScript = $remoteScript.TrimEnd([char[]]"`r`n") + "`n"
 $tmuxCommand = 'set +e; echo ''[RUN] Starting ' + $runScript + '''; bash ' + $runScript + ' ' + $BatchArgs + ' > outputs/logs/' + $SessionName + '.launcher.log 2>&1; status=$?; printf ''%s\n'' "$status" > outputs/logs/' + $SessionName + '.status.tmp; mv -f outputs/logs/' + $SessionName + '.status.tmp outputs/logs/' + $SessionName + '.status; tmux kill-session -t ' + $SessionName + ' 2>/dev/null || true; exit "$status"'
 $tmuxCommandBytes = [System.Text.Encoding]::UTF8.GetBytes($tmuxCommand)
 $tmuxCommandBase64 = [Convert]::ToBase64String($tmuxCommandBytes)
@@ -108,4 +110,4 @@ Write-Host "[RUN] Session    : $SessionName"
 Write-Host "[RUN] Runner     : $Runner"
 Write-Host "[RUN] Args       : $BatchArgs"
 
-ssh @sshOptions -t -o "ProxyCommand=$proxyCommand" "${TargetUser}@${TargetHost}" "bash -lc $remoteCommandLiteral"
+ssh @sshOptions -t -J $proxyJump "${TargetUser}@${TargetHost}" "bash -lc $remoteCommandLiteral"

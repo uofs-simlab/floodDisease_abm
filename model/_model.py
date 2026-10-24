@@ -38,6 +38,12 @@ def _as_bool(x, default=False):
     return bool(x)
 
 
+def _model_parameter(kwargs, key, default=None):
+    """Use the shared default only when a parameter is omitted or None."""
+    value = kwargs.get(key)
+    return default if value is None else value
+
+
 def resolve_scenario_configuration(scenario_mode, defaults=None):
     """Resolve a scenario name or code into the active hazard flags."""
     defaults = defaults or {}
@@ -220,8 +226,6 @@ class Model(Model):
         
         # Flood calibration knobs.
         self.flood_depth_multiplier = float(kwargs.get("flood_depth_multiplier", MODEL_DEFAULTS["flood_depth_multiplier"]))
-        self.flood_onset_speed = max(0.1, float(kwargs.get("flood_onset_speed", MODEL_DEFAULTS["flood_onset_speed"]) or MODEL_DEFAULTS["flood_onset_speed"]))
-        self.flood_recession_speed = max(0.1, float(kwargs.get("flood_recession_speed", MODEL_DEFAULTS["flood_recession_speed"]) or MODEL_DEFAULTS["flood_recession_speed"]))
         self.flood_wave_enabled = _as_bool(kwargs.get("flood_wave_enabled", MODEL_DEFAULTS["flood_wave_enabled"]), MODEL_DEFAULTS["flood_wave_enabled"])
         self.flood_wave_direction = str(kwargs.get("flood_wave_direction", MODEL_DEFAULTS["flood_wave_direction"]) or MODEL_DEFAULTS["flood_wave_direction"])
         self.flood_wave_rise_hours = max(1.0, float(kwargs.get("flood_wave_rise_hours", 0.0) or 0.0))
@@ -269,13 +273,12 @@ class Model(Model):
         self.home_habit_thresh        = float(kwargs.get("home_habit_thresh", MODEL_DEFAULTS["home_habit_thresh"]))
         self.person_resilience_min    = max(0.0, float(kwargs.get("person_resilience_min", MODEL_DEFAULTS["person_resilience_min"]) or MODEL_DEFAULTS["person_resilience_min"]))
         self.person_resilience_max    = max(self.person_resilience_min, float(kwargs.get("person_resilience_max", MODEL_DEFAULTS["person_resilience_max"]) or MODEL_DEFAULTS["person_resilience_max"]))
-        self.stranded_depth_tolerance_mult = max(0.01, float(kwargs.get("stranded_depth_tolerance_mult", MODEL_DEFAULTS["stranded_depth_tolerance_mult"]) or MODEL_DEFAULTS["stranded_depth_tolerance_mult"]))
-        self.injury_risk_scale = max(0.0, float(kwargs.get("injury_risk_scale", MODEL_DEFAULTS["injury_risk_scale"]) or MODEL_DEFAULTS["injury_risk_scale"]))
+        self.stranded_depth_tolerance_mult = max(0.0, float(_model_parameter(kwargs, "stranded_depth_tolerance_mult", MODEL_DEFAULTS["stranded_depth_tolerance_mult"])))
+        self.injury_risk_scale = max(0.0, float(_model_parameter(kwargs, "injury_risk_scale", MODEL_DEFAULTS["injury_risk_scale"])))
         self.house_mold_rate = max(0.0, min(1.0, float(kwargs.get("house_mold_rate", MODEL_DEFAULTS["house_mold_rate"]))))
         self.business_mold_rate = max(0.0, min(1.0, float(kwargs.get("business_mold_rate", MODEL_DEFAULTS["business_mold_rate"]))))
 
         # Policy levers for experiments.
-        self.wash_intensity                = float(kwargs.get("wash_intensity", MODEL_DEFAULTS["wash_intensity"]))
         self.shelter_distancing_intensity  = float(kwargs.get("shelter_distancing_intensity", MODEL_DEFAULTS["shelter_distancing_intensity"]))
         self.healthcare_surge_factor       = float(kwargs.get("healthcare_surge_factor", MODEL_DEFAULTS["healthcare_surge_factor"]))
         self.repair_subsidy_intensity      = float(kwargs.get("repair_subsidy_intensity", MODEL_DEFAULTS["repair_subsidy_intensity"]))
@@ -289,7 +292,7 @@ class Model(Model):
         # Share of institutional operational/procurement spend that flows into business revenue.
         # 1.0 preserves prior behavior.
         self.institutional_procurement_pass_through = max(0.0, min(1.0, float(kwargs.get("institutional_procurement_pass_through", MODEL_DEFAULTS["institutional_procurement_pass_through"]) or MODEL_DEFAULTS["institutional_procurement_pass_through"])))
-        self.stochasticity_level = max(0.0, min(0.25, float(kwargs.get("stochasticity_level", MODEL_DEFAULTS["stochasticity_level"]) or MODEL_DEFAULTS["stochasticity_level"])))
+        self.stochasticity_level = max(0.0, min(0.25, float(_model_parameter(kwargs, "stochasticity_level", MODEL_DEFAULTS["stochasticity_level"]))))
         self.decision_jitter_rel = max(0.0, min(0.25, float(kwargs.get("decision_jitter_rel", self.stochasticity_level))))
         self.threshold_jitter_rel = max(0.0, min(0.25, float(kwargs.get("threshold_jitter_rel", self.stochasticity_level))))
         self.health_jitter_rel = max(0.0, min(0.25, float(kwargs.get("health_jitter_rel", self.stochasticity_level))))
@@ -316,10 +319,10 @@ class Model(Model):
             gammaC=float(kwargs.get("decision_gamma_coping", MODEL_DEFAULTS["decision_gamma_coping"])),
         )
         self.warning_pre_flood_base = min(1.0, self.warning_pre_flood_base * (1.0 + 0.80 * self.risk_communication_intensity))
-        self.survivability_duration_scale = max(0.1, float(kwargs.get("survivability_duration_scale", MODEL_DEFAULTS["survivability_duration_scale"]) or MODEL_DEFAULTS["survivability_duration_scale"]))
-        self.stranded_mortality_rate_scale = max(0.0, float(kwargs.get("stranded_mortality_rate_scale", MODEL_DEFAULTS["stranded_mortality_rate_scale"]) or MODEL_DEFAULTS["stranded_mortality_rate_scale"]))
-        self.stranded_mortality_hazard_threshold = max(0.0, float(kwargs.get("stranded_mortality_hazard_threshold", MODEL_DEFAULTS["stranded_mortality_hazard_threshold"]) or MODEL_DEFAULTS["stranded_mortality_hazard_threshold"]))
-        self.stranded_mortality_prob_cap = max(0.0, min(1.0, float(kwargs.get("stranded_mortality_prob_cap", MODEL_DEFAULTS["stranded_mortality_prob_cap"]) or MODEL_DEFAULTS["stranded_mortality_prob_cap"])))
+        self.survivability_duration_scale = max(0.1, float(_model_parameter(kwargs, "survivability_duration_scale", MODEL_DEFAULTS["survivability_duration_scale"])))
+        self.stranded_mortality_rate_scale = max(0.0, float(_model_parameter(kwargs, "stranded_mortality_rate_scale", MODEL_DEFAULTS["stranded_mortality_rate_scale"])))
+        self.stranded_mortality_hazard_threshold = max(0.0, float(_model_parameter(kwargs, "stranded_mortality_hazard_threshold", MODEL_DEFAULTS["stranded_mortality_hazard_threshold"])))
+        self.stranded_mortality_prob_cap = max(0.0, min(1.0, float(_model_parameter(kwargs, "stranded_mortality_prob_cap", MODEL_DEFAULTS["stranded_mortality_prob_cap"]))))
     
         # A single inundation footprint is activated for the flood period.
         self.flood_start_hour = int(self.last_evacuation_time + 1)
@@ -341,7 +344,7 @@ class Model(Model):
         self.disaster_period: str | None = None
         self.event_phase: str | None = None
         
-        self.hours_before_rescue = max(0, int(kwargs.get("hours_before_rescue", MODEL_DEFAULTS["hours_before_rescue"]) or MODEL_DEFAULTS["hours_before_rescue"]))
+        self.hours_before_rescue = max(0, int(_model_parameter(kwargs, "hours_before_rescue", MODEL_DEFAULTS["hours_before_rescue"])))
         self.hours_before_healthcare = 0
         self.gov_baseline_share_shelter = max(0.0, float(kwargs.get("gov_baseline_share_shelter", MODEL_DEFAULTS["gov_baseline_share_shelter"]) or MODEL_DEFAULTS["gov_baseline_share_shelter"]))
         self.gov_baseline_share_healthcare = max(0.0, float(kwargs.get("gov_baseline_share_healthcare", MODEL_DEFAULTS["gov_baseline_share_healthcare"]) or MODEL_DEFAULTS["gov_baseline_share_healthcare"]))
@@ -404,25 +407,32 @@ class Model(Model):
         self.enable_disease_system = bool(scenario_cfg["enable_disease_system"])
         # Numeric parameters are scenario-invariant. Scenario selection only
         # controls which processes are enabled, so results remain comparable.
-        self.infectious_mortality_hazard = max(0.0, float(kwargs.get("infectious_mortality_hazard", MODEL_DEFAULTS["infectious_mortality_hazard"]) or MODEL_DEFAULTS["infectious_mortality_hazard"]))
-        self.infectious_course_hours = max(48, int(kwargs.get("infectious_course_hours", MODEL_DEFAULTS["infectious_course_hours"]) or MODEL_DEFAULTS["infectious_course_hours"]))
-        self.infectious_peak_hours = max(12, int(kwargs.get("infectious_peak_hours", MODEL_DEFAULTS["infectious_peak_hours"]) or MODEL_DEFAULTS["infectious_peak_hours"]))
-        self.infectious_beta_base = max(0.0, float(kwargs.get("infectious_beta_base", MODEL_DEFAULTS["infectious_beta_base"]) or MODEL_DEFAULTS["infectious_beta_base"]))
-        self.infectious_contact_intensity = max(0.0, float(kwargs.get("infectious_contact_intensity", MODEL_DEFAULTS["infectious_contact_intensity"]) or MODEL_DEFAULTS["infectious_contact_intensity"]))
-        self.infectious_severity_scale = max(0.0, float(kwargs.get("infectious_severity_scale", MODEL_DEFAULTS["infectious_severity_scale"]) or MODEL_DEFAULTS["infectious_severity_scale"]))
-        self.infectious_gamma = max(0.0, min(1.0, float(kwargs.get("infectious_gamma", MODEL_DEFAULTS["infectious_gamma"]) or MODEL_DEFAULTS["infectious_gamma"])))
-        self.infectious_waning = max(0.0, min(1.0, float(kwargs.get("infectious_waning", MODEL_DEFAULTS["infectious_waning"]) or MODEL_DEFAULTS["infectious_waning"])))
-        self.infectious_seed_share = max(0.0, min(1.0, float(kwargs.get("infectious_seed_share", MODEL_DEFAULTS["infectious_seed_share"]) or MODEL_DEFAULTS["infectious_seed_share"])))
-        self.infectious_seed_start_hour = max(0, int(kwargs.get("infectious_seed_start_hour", MODEL_DEFAULTS["infectious_seed_start_hour"]) or MODEL_DEFAULTS["infectious_seed_start_hour"]))
-        self.vector_hospital_seek_prob = max(0.0, min(1.0, float(kwargs.get("vector_hospital_seek_prob", MODEL_DEFAULTS["vector_hospital_seek_prob"]) or MODEL_DEFAULTS["vector_hospital_seek_prob"])))
+        self.infectious_mortality_hazard = max(0.0, float(_model_parameter(kwargs, "infectious_mortality_hazard", MODEL_DEFAULTS["infectious_mortality_hazard"])))
+        self.infectious_course_hours = max(48, int(_model_parameter(kwargs, "infectious_course_hours", MODEL_DEFAULTS["infectious_course_hours"])))
+        configured_peak_hours = max(12, int(_model_parameter(kwargs, "infectious_peak_hours", MODEL_DEFAULTS["infectious_peak_hours"])))
+        self.infectious_peak_hours = min(configured_peak_hours, self.infectious_course_hours - 1)
+        self.infectious_max_duration_hours = max(1, int(_model_parameter(kwargs, "infectious_max_duration_hours", MODEL_DEFAULTS["infectious_max_duration_hours"])))
+        self.infectious_beta_base = max(0.0, float(_model_parameter(kwargs, "infectious_beta_base", MODEL_DEFAULTS["infectious_beta_base"])))
+        self.infectious_contact_intensity = max(0.0, float(_model_parameter(kwargs, "infectious_contact_intensity", MODEL_DEFAULTS["infectious_contact_intensity"])))
+        self.infectious_severity_scale = max(0.0, float(_model_parameter(kwargs, "infectious_severity_scale", MODEL_DEFAULTS["infectious_severity_scale"])))
+        self.infectious_gamma = max(0.0, min(1.0, float(_model_parameter(kwargs, "infectious_gamma", MODEL_DEFAULTS["infectious_gamma"]))))
+        self.infectious_waning = max(0.0, min(1.0, float(_model_parameter(kwargs, "infectious_waning", MODEL_DEFAULTS["infectious_waning"]))))
+        self.infectious_seed_share = max(0.0, min(1.0, float(_model_parameter(kwargs, "infectious_seed_share", MODEL_DEFAULTS["infectious_seed_share"]))))
+        self.infectious_seed_start_hour = max(0, int(_model_parameter(kwargs, "infectious_seed_start_hour", MODEL_DEFAULTS["infectious_seed_start_hour"])))
+        self.vector_hospital_seek_prob = max(0.0, min(1.0, float(_model_parameter(kwargs, "vector_hospital_seek_prob", MODEL_DEFAULTS["vector_hospital_seek_prob"]))))
         self.healthcare_max_stay_hours = max(24, int(kwargs.get("healthcare_max_stay_hours", MODEL_DEFAULTS["healthcare_max_stay_hours"]) or MODEL_DEFAULTS["healthcare_max_stay_hours"]))
-        self.mold_hospital_seek_prob = max(0.0, min(1.0, float(kwargs.get("mold_hospital_seek_prob", MODEL_DEFAULTS["mold_hospital_seek_prob"]) or MODEL_DEFAULTS["mold_hospital_seek_prob"])))
+        self.mold_hospital_seek_prob = max(0.0, min(1.0, float(_model_parameter(kwargs, "mold_hospital_seek_prob", MODEL_DEFAULTS["mold_hospital_seek_prob"]))))
         self.vector_healthcare_cost_multiplier = max(0.1, float(kwargs.get("vector_healthcare_cost_multiplier", MODEL_DEFAULTS["vector_healthcare_cost_multiplier"]) or MODEL_DEFAULTS["vector_healthcare_cost_multiplier"]))
         self.mold_healthcare_cost_multiplier = max(0.1, float(kwargs.get("mold_healthcare_cost_multiplier", MODEL_DEFAULTS["mold_healthcare_cost_multiplier"]) or MODEL_DEFAULTS["mold_healthcare_cost_multiplier"]))
-        self.mold_symptom_threshold = max(0.0, min(1.0, float(kwargs.get("mold_symptom_threshold", MODEL_DEFAULTS["mold_symptom_threshold"]) or MODEL_DEFAULTS["mold_symptom_threshold"])))
-        self.mold_functional_capacity = max(0.0, min(1.0, float(kwargs.get("mold_functional_capacity", MODEL_DEFAULTS["mold_functional_capacity"]) or MODEL_DEFAULTS["mold_functional_capacity"])))
-        self.vector_functional_capacity = max(0.0, min(1.0, float(kwargs.get("vector_functional_capacity", MODEL_DEFAULTS["vector_functional_capacity"]) or MODEL_DEFAULTS["vector_functional_capacity"])))
-        self.injury_hospital_recovery_boost = max(1.0, float(kwargs.get("injury_hospital_recovery_boost", MODEL_DEFAULTS["injury_hospital_recovery_boost"]) or MODEL_DEFAULTS["injury_hospital_recovery_boost"]))
+        self.mold_symptom_threshold = max(0.0, min(1.0, float(_model_parameter(kwargs, "mold_symptom_threshold", MODEL_DEFAULTS["mold_symptom_threshold"]))))
+        self.mold_base_onset_probability = max(0.0, min(1.0, float(_model_parameter(kwargs, "mold_base_onset_probability", MODEL_DEFAULTS["mold_base_onset_probability"]))))
+        self.mold_high_sensitivity_share = max(0.0, min(1.0, float(_model_parameter(kwargs, "mold_high_sensitivity_share", MODEL_DEFAULTS["mold_high_sensitivity_share"]))))
+        self.mold_sensitivity_multiplier = max(0.0, float(_model_parameter(kwargs, "mold_sensitivity_multiplier", MODEL_DEFAULTS["mold_sensitivity_multiplier"])))
+        self.mold_recovery_rate_per_hour = max(0.0, min(1.0, float(_model_parameter(kwargs, "mold_recovery_rate_per_hour", MODEL_DEFAULTS["mold_recovery_rate_per_hour"]))))
+        self.mold_max_symptom_hours = max(1, int(_model_parameter(kwargs, "mold_max_symptom_hours", MODEL_DEFAULTS["mold_max_symptom_hours"])))
+        self.mold_functional_capacity = max(0.0, min(1.0, float(_model_parameter(kwargs, "mold_functional_capacity", MODEL_DEFAULTS["mold_functional_capacity"]))))
+        self.vector_functional_capacity = max(0.0, min(1.0, float(_model_parameter(kwargs, "vector_functional_capacity", MODEL_DEFAULTS["vector_functional_capacity"]))))
+        self.injury_hospital_recovery_boost = max(1.0, float(_model_parameter(kwargs, "injury_hospital_recovery_boost", MODEL_DEFAULTS["injury_hospital_recovery_boost"])))
 
         # Stagnant-pool hazard physics and policy.
         self.stagnant_half_life_h = float(kwargs.get("stagnant_half_life_h", MODEL_DEFAULTS["stagnant_half_life_h"]))
@@ -430,18 +440,21 @@ class Model(Model):
         self.stagnant_lifetime_min_h = float(kwargs.get("stagnant_lifetime_min_h", MODEL_DEFAULTS["stagnant_lifetime_min_h"]))
         self.stagnant_lifetime_max_h = float(kwargs.get("stagnant_lifetime_max_h", MODEL_DEFAULTS["stagnant_lifetime_max_h"]))
         self.vector_control_intensity = float(kwargs.get("vector_control_intensity", MODEL_DEFAULTS["vector_control_intensity"]))  # 0..1
-        self.vector_exposure_hazard = max(0.0, float(kwargs.get("vector_exposure_hazard", MODEL_DEFAULTS["vector_exposure_hazard"]) or MODEL_DEFAULTS["vector_exposure_hazard"]))
+        self.vector_exposure_hazard = max(0.0, float(_model_parameter(kwargs, "vector_exposure_hazard", MODEL_DEFAULTS["vector_exposure_hazard"])))
+        self.vector_shelter_protection = max(0.0, min(1.0, float(_model_parameter(kwargs, "vector_shelter_protection", MODEL_DEFAULTS["vector_shelter_protection"]))))
+        self.vector_recovery_rate_per_hour = max(0.0, min(1.0, float(_model_parameter(kwargs, "vector_recovery_rate_per_hour", MODEL_DEFAULTS["vector_recovery_rate_per_hour"]))))
+        self.vector_max_symptom_hours = max(1, int(_model_parameter(kwargs, "vector_max_symptom_hours", MODEL_DEFAULTS["vector_max_symptom_hours"])))
         # Keep infectious disease effects from silently altering flood evacuation behavior unless explicitly requested.
         self.infectious_threat_coupling = max(0.0, min(1.0, float(kwargs.get("infectious_threat_coupling", MODEL_DEFAULTS["infectious_threat_coupling"]) or MODEL_DEFAULTS["infectious_threat_coupling"])))
         
         # Random selection controls for stagnant pools.
         self.stagnant_seed = kwargs.get("stagnant_seed", self.random_seed ^ 0x9E3779B9)
-        self.stagnant_keep_fraction = max(0.0, min(1.0, float(kwargs.get("stagnant_keep_fraction", MODEL_DEFAULTS["stagnant_keep_fraction"]) or MODEL_DEFAULTS["stagnant_keep_fraction"])))
-        self.stagnant_shrink_min = max(0.0, float(kwargs.get("stagnant_shrink_min", MODEL_DEFAULTS["stagnant_shrink_min"]) or MODEL_DEFAULTS["stagnant_shrink_min"]))
-        self.stagnant_shrink_max = max(self.stagnant_shrink_min, float(kwargs.get("stagnant_shrink_max", MODEL_DEFAULTS["stagnant_shrink_max"]) or MODEL_DEFAULTS["stagnant_shrink_max"]))
-        self.stagnant_min_area = max(0.0, float(kwargs.get("stagnant_min_area", MODEL_DEFAULTS["stagnant_min_area"]) or MODEL_DEFAULTS["stagnant_min_area"]))
-        self.stagnant_area_fraction = max(0.0, min(1.0, float(kwargs.get("stagnant_area_fraction", MODEL_DEFAULTS["stagnant_area_fraction"]) or MODEL_DEFAULTS["stagnant_area_fraction"])))
-        self.stagnant_simplify_tolerance = max(0.0, float(kwargs.get("stagnant_simplify_tolerance", MODEL_DEFAULTS["stagnant_simplify_tolerance"]) or MODEL_DEFAULTS["stagnant_simplify_tolerance"]))
+        self.stagnant_keep_fraction = max(0.0, min(1.0, float(_model_parameter(kwargs, "stagnant_keep_fraction", MODEL_DEFAULTS["stagnant_keep_fraction"]))))
+        self.stagnant_shrink_min = max(0.0, float(_model_parameter(kwargs, "stagnant_shrink_min", MODEL_DEFAULTS["stagnant_shrink_min"])))
+        self.stagnant_shrink_max = max(self.stagnant_shrink_min, float(_model_parameter(kwargs, "stagnant_shrink_max", MODEL_DEFAULTS["stagnant_shrink_max"])))
+        self.stagnant_min_area = max(0.0, float(_model_parameter(kwargs, "stagnant_min_area", MODEL_DEFAULTS["stagnant_min_area"])))
+        self.stagnant_area_fraction = max(0.0, min(1.0, float(_model_parameter(kwargs, "stagnant_area_fraction", MODEL_DEFAULTS["stagnant_area_fraction"]))))
+        self.stagnant_simplify_tolerance = max(0.0, float(_model_parameter(kwargs, "stagnant_simplify_tolerance", MODEL_DEFAULTS["stagnant_simplify_tolerance"])))
         self.stagnant_max_spots_per_wave = max(1, int(kwargs.get("stagnant_max_spots_per_wave", MODEL_DEFAULTS["stagnant_max_spots_per_wave"]) or MODEL_DEFAULTS["stagnant_max_spots_per_wave"]))
         self.stagnant_max_source_polygons = max(1, int(kwargs.get("stagnant_max_source_polygons", MODEL_DEFAULTS["stagnant_max_source_polygons"]) or MODEL_DEFAULTS["stagnant_max_source_polygons"]))
 
@@ -483,12 +496,27 @@ class Model(Model):
                     gamma=self.infectious_gamma,
                     waning=self.infectious_waning,
                     seed_share=self.infectious_seed_share,
+                    max_inf_hours=self.infectious_max_duration_hours,
                 )
             )
         if self.enable_stagnant:
-            mods.append(VectorborneModule())
+            mods.append(
+                VectorborneModule(
+                    shelter_protect=self.vector_shelter_protection,
+                    recover_rate=self.vector_recovery_rate_per_hour,
+                    max_symp_hours=self.vector_max_symptom_hours,
+                )
+            )
         if self.enable_mold:
-            mods.append(MoldModule())
+            mods.append(
+                MoldModule(
+                    base_prob=self.mold_base_onset_probability,
+                    sens_high_share=self.mold_high_sensitivity_share,
+                    sens_mult=self.mold_sensitivity_multiplier,
+                    recover_rate=self.mold_recovery_rate_per_hour,
+                    max_symp_hours=self.mold_max_symptom_hours,
+                )
+            )
         self.disease = DiseaseManager(mods)
         self.flood = FloodManager([RiverFloodModule()])
         

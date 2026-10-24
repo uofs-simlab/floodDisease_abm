@@ -553,8 +553,6 @@ model_params = {
 
     "flood_depth_multiplier": MODEL_DEFAULTS["flood_depth_multiplier"],
     "flood_critical_facility_clearance_m": MODEL_DEFAULTS["flood_critical_facility_clearance_m"],
-    "flood_onset_speed": MODEL_DEFAULTS["flood_onset_speed"],
-    "flood_recession_speed": MODEL_DEFAULTS["flood_recession_speed"],
     "house_flood_thresh_mult": MODEL_DEFAULTS["house_flood_thresh_mult"],
     "biz_flood_thresh_mult": MODEL_DEFAULTS["biz_flood_thresh_mult"],
     "school_flood_thresh_mult": MODEL_DEFAULTS["school_flood_thresh_mult"],
@@ -598,7 +596,6 @@ model_params = {
     "infectious_mortality_hazard": MODEL_DEFAULTS["infectious_mortality_hazard"],
 
     # --- policy levers (opt-in; zero preserves baseline behavior) ---
-    "wash_intensity": MODEL_DEFAULTS["wash_intensity"],
     "shelter_distancing_intensity": MODEL_DEFAULTS["shelter_distancing_intensity"],
     "healthcare_surge_factor": MODEL_DEFAULTS["healthcare_surge_factor"],
     "repair_subsidy_intensity": MODEL_DEFAULTS["repair_subsidy_intensity"],
@@ -690,8 +687,6 @@ _SETTINGS_DEFAULTS = {
     },
     "flood": {
         "flood_depth_multiplier": model_params["flood_depth_multiplier"],
-        "flood_onset_speed": model_params["flood_onset_speed"],
-        "flood_recession_speed": model_params["flood_recession_speed"],
         "house_flood_thresh_mult": model_params["house_flood_thresh_mult"],
         "biz_flood_thresh_mult": model_params["biz_flood_thresh_mult"],
         "school_flood_thresh_mult": model_params["school_flood_thresh_mult"],
@@ -734,7 +729,6 @@ _SETTINGS_DEFAULTS = {
         "vector_healthcare_cost_multiplier": model_params["vector_healthcare_cost_multiplier"],
     },
     "policy": {
-        "wash_intensity": model_params["wash_intensity"],
         "shelter_distancing_intensity": model_params["shelter_distancing_intensity"],
         "healthcare_surge_factor": model_params["healthcare_surge_factor"],
         "repair_subsidy_intensity": model_params["repair_subsidy_intensity"],
@@ -1483,8 +1477,6 @@ def ModelSettingsPanel(model):
                         solara.SliderInt("Flood days", value=int(settings["scenario"]["flood_days"]), min=3, max=30, step=1, on_value=lambda v: update_setting("scenario", "flood_days", int(v)))
                         solara.SliderInt("Post flood days", value=int(settings["scenario"]["post_flood_days"]), min=0, max=90, step=1, on_value=lambda v: update_setting("scenario", "post_flood_days", int(v)))
                         solara.SliderFloat("Flood depth", value=float(settings["flood"]["flood_depth_multiplier"]), min=0.1, max=6.0, step=0.1, on_value=lambda v: update_setting("flood", "flood_depth_multiplier", float(v)))
-                        solara.SliderFloat("Flood onset speed", value=float(settings["flood"]["flood_onset_speed"]), min=0.5, max=2.0, step=0.05, on_value=lambda v: update_setting("flood", "flood_onset_speed", float(v)))
-                        solara.SliderFloat("Flood recession speed", value=float(settings["flood"]["flood_recession_speed"]), min=0.5, max=2.0, step=0.05, on_value=lambda v: update_setting("flood", "flood_recession_speed", float(v)))
                         solara.Markdown("**Structures**")
                         solara.SliderFloat("House flood sensitivity", value=float(settings["flood"]["house_flood_thresh_mult"]), min=0.2, max=2.0, step=0.05, on_value=lambda v: update_setting("flood", "house_flood_thresh_mult", float(v)))
                         solara.SliderFloat("Business flood sensitivity", value=float(settings["flood"]["biz_flood_thresh_mult"]), min=0.2, max=2.0, step=0.05, on_value=lambda v: update_setting("flood", "biz_flood_thresh_mult", float(v)))
