@@ -1191,7 +1191,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--lhs-samples", type=int, default=96)
     parser.add_argument("--top-k", type=int, default=6)
     parser.add_argument("--replications-per-point", type=int, default=3)
-    parser.add_argument("--bootstrap-samples", type=int, default=200)
+    parser.add_argument("--bootstrap-samples", type=int, default=1000)
     parser.add_argument("--seed-base", type=int, default=1500154)
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--out-dir", type=str, default=None)
